@@ -1,23 +1,134 @@
 import logo from './logo.svg';
 import './App.css';
+import Scorecard from './components/Scorecard';
+import Controls from './components/Controls';
+import React, { useState, useEffect } from 'react';
+import { runFireworks } from './utils';
 
 function App() {
+  const [player1Score, setPlayer1Score] = useState(0);
+  const [player2Score, setPlayer2Score] = useState(0);
+  const [round, setRound] = useState(1);
+  const [round1Result, setRound1Result] = useState('');
+  const [round2Result, setRound2Result] = useState('');
+  const [round3Result, setRound3Result] = useState('');
+  const [winner, setWinner] = useState('');
+
+  const updatePlay1Score = (score) => {
+    const audio = new Audio('score.mp3');
+    audio.play();
+    if(player1Score===0 && score<0){
+    }
+    else setPlayer1Score((prevScore) => prevScore + score);
+        
+  };
+
+  const updatePlay2Score = (score) => {
+    const audio = new Audio('score.mp3');
+    audio.play();
+    if(player2Score===0 && score<0){
+    }
+    else setPlayer2Score((prevScore) => prevScore + score);
+  };
+
+  const endRound = () => {
+    if (player1Score > player2Score) {
+      if(round===1){
+         setRound1Result('star1')
+      }else if(round===2){
+        setRound2Result('star1');
+      }
+      else setRound3Result('star1')
+    } else  {
+      if(round===1){
+        setRound1Result('star2')
+     }else if(round===2){
+       setRound2Result('star2');
+     }
+     else setRound3Result('star2')
+    } 
+
+    setRound((round)=> round+1);
+    console.log('round is : ', round, '1', round1Result, '2', round2Result)
+
+
+      
+    const audio = new Audio('round.mp3');
+    audio.play();
+    setPlayer1Score(0);
+    setPlayer2Score(0);
+   
+  };
+
+  useEffect(() => {
+     
+     if(round===3 && round1Result === round2Result){
+       let winnerHolder
+       if(round1Result.includes(1)){
+          winnerHolder='Player 1'
+       }
+       else winnerHolder='Player 2'
+
+       setWinner(winnerHolder)
+        console.log('ending game')
+       endGame()
+    }
+    
+    if(round3Result !=='' || round===4){
+      console.log('in here')
+      if(round3Result.includes(1)) setWinner('Player 1')
+      else setWinner('Player 2')
+    endGame()
+    }
+  }, [ round2Result, round3Result]);
+
+  
+
+  const endGame = () => {
+    const audio = new Audio('win.mp3');
+    audio.play();
+    runFireworks();
+    setTimeout(()=>{
+       setWinner('')
+       setRound1Result('');
+       setRound2Result('');
+       setRound3Result('');
+    }, 7000)
+    setRound(1);
+    setPlayer1Score(0);
+    setPlayer2Score(0);
+   
+  };
+  if (round === 1 && (player1Score === 21 || player2Score === 21)) {
+    endRound();
+  }
+  else if (round === 2 && (player1Score === 21 || player2Score === 21)) {
+    endRound();
+  } else if (round === 3 && (player1Score === 21 || player2Score === 21)) {
+    endRound();
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App py-24 ">
+
+      
+      {!winner ? <Controls
+        player1Score={player1Score}
+        updatePlay1Score={updatePlay1Score}
+        player2Score={player2Score}
+        updatePlay2Score={updatePlay2Score}
+        
+      /> : <div className='mb-8'>
+      <p className=' w-3/5 md:w-1/2 lg:w-1/4 mx-auto z-50 top-24 text-xl text-white font-bold italic py-4 px-2 rounded-full bg-gradient-to-r from-purple-500 to-blue-500'>{winner} Won!</p>
+    </div>}
+      <Scorecard
+        player1Score={player1Score}
+        player2Score={player2Score}
+        round={round}
+        round1Result={round1Result}
+        round2Result={round2Result}
+        round3Result={round3Result}
+      />
     </div>
   );
 }
