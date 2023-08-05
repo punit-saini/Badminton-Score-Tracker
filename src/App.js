@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import './App.css';
 import Scorecard from './components/Scorecard';
 import Controls from './components/Controls';
@@ -17,6 +16,8 @@ function App() {
   const updatePlay1Score = (score) => {
     const audio = new Audio('score.mp3');
     audio.play();
+
+    // Make sure scoer doesn't go below 0
     if(player1Score===0 && score<0){
     }
     else setPlayer1Score((prevScore) => prevScore + score);
@@ -26,12 +27,17 @@ function App() {
   const updatePlay2Score = (score) => {
     const audio = new Audio('score.mp3');
     audio.play();
+
+    // Make sure scoer doesn't go below 0
     if(player2Score===0 && score<0){
     }
     else setPlayer2Score((prevScore) => prevScore + score);
   };
 
+  // Ends a round 
   const endRound = () => {
+    const audio = new Audio('round.mp3');
+    audio.play();
     if (player1Score > player2Score) {
       if(round===1){
          setRound1Result('star1')
@@ -49,19 +55,16 @@ function App() {
     } 
 
     setRound((round)=> round+1);
-    console.log('round is : ', round, '1', round1Result, '2', round2Result)
 
 
-      
-    const audio = new Audio('round.mp3');
-    audio.play();
     setPlayer1Score(0);
     setPlayer2Score(0);
    
   };
 
   useEffect(() => {
-     
+    
+    // Declare the winner if a single player won both first and second round
      if(round===3 && round1Result === round2Result){
        let winnerHolder
        if(round1Result.includes(1)){
@@ -74,39 +77,40 @@ function App() {
        endGame()
     }
     
-    if(round3Result !=='' || round===4){
-      console.log('in here')
+    // Decides who won the game after completion of third round 
+    if( round===4){
+      setRound(3)
       if(round3Result.includes(1)) setWinner('Player 1')
       else setWinner('Player 2')
-    endGame()
+      endGame()
     }
   }, [ round2Result, round3Result]);
 
   
 
+  // Resets the values for new game
   const endGame = () => {
     const audio = new Audio('win.mp3');
     audio.play();
     runFireworks();
     setTimeout(()=>{
        setWinner('')
+       setRound(1);
        setRound1Result('');
        setRound2Result('');
        setRound3Result('');
     }, 7000)
-    setRound(1);
     setPlayer1Score(0);
     setPlayer2Score(0);
    
   };
-  if (round === 1 && (player1Score === 21 || player2Score === 21)) {
+
+
+  // To end the round when any player scores 21 points 
+  if ((player1Score === 21 || player2Score === 21)) {
     endRound();
   }
-  else if (round === 2 && (player1Score === 21 || player2Score === 21)) {
-    endRound();
-  } else if (round === 3 && (player1Score === 21 || player2Score === 21)) {
-    endRound();
-  }
+  
 
   return (
     <div className="App py-24 ">
